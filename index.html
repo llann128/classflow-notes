@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="将课堂录音、实时转写、个人笔记与课后复习整理在一起。" />
+  <title>课迹｜课堂学习工作台</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2311161f'/%3E%3Cpath d='M18 19h24v26H18z' fill='none' stroke='%237c9cff' stroke-width='4'/%3E%3Cpath d='M25 27h10M25 35h14' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand" title="课迹">
+        <span class="brand-mark">迹</span>
+        <span class="brand-name">课迹</span>
+      </div>
+      <nav class="course-tree" id="courseTree" aria-label="课程目录"></nav>
+      <button class="add-course" id="addCourse" title="添加课程"><span>＋</span><span class="course-label">新建课程</span></button>
+      <button class="collapse-btn" id="collapseSidebar" aria-label="收起课程栏">‹</button>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div class="lesson-heading">
+          <p id="courseName">认知心理学</p>
+          <div><h1 id="lessonTitle">注意的选择机制</h1><button class="title-edit" aria-label="编辑标题">✎</button><button class="title-edit" id="coursePlannerButton" aria-label="打开课程待办与备忘" title="课程待办与备忘">☑</button></div>
+        </div>
+        <div class="recorder" id="recorder">
+          <button class="record-main" id="recordBtn" aria-label="开始录音"><span class="record-dot"></span><span id="recordLabel">开始录音</span></button>
+          <button class="control-btn" id="pauseBtn" disabled aria-label="播放或暂停">Ⅱ</button>
+          <button class="control-btn stop" id="stopBtn" disabled aria-label="结束录音">■</button>
+          <span class="timer" id="timer">00:00:00</span>
+          <div class="audio-timeline">
+            <input id="audioSeek" type="range" min="0" max="100" value="0" step="0.1" disabled aria-label="录音播放进度" />
+            <div class="recording-motion" id="recordingMotion"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <span class="total-time" id="totalTime">00:00:00</span>
+          <audio id="audioPlayback" preload="metadata"></audio>
+          <button class="lost-btn" id="lostBtn" disabled><span>⌁</span> 刚刚走神了</button>
+        </div>
+        <div class="save-status"><span></span><span id="saveText">已保存</span></div>
+      </header>
+
+      <section class="modebar">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-view="classroom">课堂记录</button>
+          <button class="tab" data-view="mindmap">思维导图</button>
+          <button class="tab" data-view="review">复习重点</button>
+        </div>
+        <div class="class-meta"><span>2026年9月16日</span><span>·</span><span id="durationMeta">尚未录音</span></div>
+      </section>
+
+      <section class="view active" id="classroomView">
+        <article class="panel notes-panel">
+          <div class="panel-head">
+            <div class="notes-heading"><span class="eyebrow">MY NOTES</span><div class="notes-title-row"><h2>我的笔记</h2><button class="outline-toggle" id="outlineToggle" type="button" aria-expanded="false" aria-label="展开笔记目录">›</button></div><div class="note-outline" id="noteOutline" hidden></div></div>
+            <div class="note-actions">
+              <button id="saveNote" title="保存当前课时笔记">✓ 保存</button>
+              <button id="downloadWord" title="把当前课时笔记下载为 Word 文档">⇩ Word</button>
+              <button id="coursewareButton" title="管理当前课时课件">▤ 课件</button>
+              <button id="insertTimestamp" title="插入当前录音时间">＋ 时间点</button>
+              <button id="imageButton" title="插入图片">▧ 图片</button>
+              <input id="imageInput" type="file" accept="image/*" hidden />
+              <input id="coursewareInput" type="file" accept=".ppt,.pptx,.pdf,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden />
+            </div>
+          </div>
+          <div class="format-toolbar" role="toolbar" aria-label="笔记格式工具">
+            <select id="blockFormat" aria-label="文字样式"><option value="p">正文</option><option value="h2">一级标题</option><option value="h3">二级标题</option><option value="blockquote">引用</option></select>
+            <div class="font-stepper" role="group" aria-label="字体大小"><button id="fontDecrease" type="button" title="减小字体" aria-label="减小字体">−</button><span id="fontSizeValue">16</span><button id="fontIncrease" type="button" title="增大字体" aria-label="增大字体">＋</button></div>
+            <span class="toolbar-divider"></span>
+            <button data-command="bold" aria-label="加粗"><b>B</b></button>
+            <button data-command="italic" aria-label="斜体"><i>I</i></button>
+            <button data-command="underline" aria-label="下划线"><u>U</u></button>
+            <label class="color-tool" title="文字颜色"><span>A</span><input id="textColor" type="color" value="#171a21" /></label>
+            <span class="toolbar-divider"></span>
+            <button id="bulletList" aria-label="无序列表">☷</button>
+            <button id="insertTable" aria-label="插入表格">▦ 表格</button>
+          </div>
+          <div class="editor-wrap">
+            <div class="editor" id="noteEditor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="从这里开始记下你的想法……"><p><br></p></div>
+          </div>
+          <div class="editor-footer"><span id="wordCount">75 字</span><span>Tab 缩进 · Shift + Tab 减少缩进</span></div>
+        </article>
+
+        <article class="panel transcript-panel">
+          <div class="panel-head transcript-head">
+            <div><span class="eyebrow">LIVE TRANSCRIPT</span><h2>实时转写</h2></div>
+            <div class="transcript-controls">
+              <label class="correction-toggle" title="减少口头禅，补充标点，并保留原始转写"><input id="autoCorrect" type="checkbox" /><span class="switch"></span><span>自动校正</span></label>
+              <div class="live-state" id="liveState"><i></i><span>等待录音</span></div>
+            </div>
+          </div>
+          <div class="transcript-list" id="transcriptList">
+            <div class="transcript-block" data-time="00:00:18"><button>00:00:18</button><p>我们今天讨论注意的选择机制。先想一个问题：此刻教室里有空调声、窗外的声音，也有我说话的声音，为什么你并没有同等清楚地意识到它们？</p><button class="quote-btn" title="添加到笔记">＋</button></div>
+            <div class="transcript-block" data-time="00:03:26"><button>00:03:26</button><p>注意的核心不是简单地接收信息，而是在有限的加工能力下进行选择。不同理论真正争论的是，这个筛选到底发生在加工的早期还是晚期。</p><button class="quote-btn" title="添加到笔记">＋</button></div>
+            <div class="transcript-block" data-time="00:08:42"><button>00:08:42</button><p>这一点很重要，考试时不要只背定义。你们需要用双耳分听实验的结果，解释每一种模型为什么会被提出，又为什么受到挑战。</p><button class="quote-btn" title="添加到笔记">＋</button></div>
+            <div class="transcript-block muted" id="transcriptHint"><button>--:--:--</button><p>开始录音后，新的转写内容会出现在这里。</p></div>
+          </div>
+          <div class="transcript-footer"><span>中文（普通话）</span><button>自动跟随开启</button></div>
+        </article>
+      </section>
+
+      <section class="view" id="mindmapView">
+        <div class="generated-head"><div><span class="eyebrow">AFTER CLASS · 笔记脉络</span><h2>本节课思维导图</h2><p>与笔记目录保持一致：一级标题是第一层分支，二级标题是第二层分支。</p></div><button class="secondary-action" id="generateMindmap">↻ 重新生成</button></div>
+        <div class="map-canvas" id="mapCanvas"><div class="generate-empty"><span>⌘</span><h3>等待生成</h3><p>打开本页或点击“重新生成”，系统会分析当前课时内容。</p></div></div>
+      </section>
+
+      <section class="view" id="reviewView">
+        <div class="generated-head"><div><span class="eyebrow">AFTER CLASS · 本地整理</span><h2>本节课复习重点</h2><p>从老师强调、核心概念和你的疑问中生成。</p></div><button class="secondary-action" id="generateReview">↻ 重新生成</button></div>
+        <div class="review-grid" id="reviewGrid"><div class="generate-empty"><span>✦</span><h3>等待生成</h3><p>打开本页或点击“重新生成”，系统会分析当前课时内容。</p></div></div>
+      </section>
+    </main>
+  </div>
+  <div class="crop-dialog" id="cropDialog" aria-hidden="true">
+    <div class="crop-card" role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+      <div class="crop-title"><div><span class="eyebrow">IMAGE</span><h2 id="cropTitle">调整图片</h2></div><button id="closeCrop" aria-label="关闭">×</button></div>
+      <div class="crop-preview" id="cropPreview"><img id="cropImage" alt="待调整图片" /><div class="crop-box" id="cropBox"><i data-handle="nw"></i><i data-handle="ne"></i><i data-handle="sw"></i><i data-handle="se"></i></div></div>
+      <p class="dialog-help">拖动蓝色选框移动裁剪区域，拖动四角可自由改变宽高，不锁定比例。</p>
+      <div class="crop-actions"><button id="cancelCrop">取消</button><button id="applyCrop">应用调整</button></div>
+    </div>
+  </div>
+  <div class="crop-dialog" id="ocrDialog" aria-hidden="true">
+    <div class="crop-card ocr-card" role="dialog" aria-modal="true" aria-labelledby="ocrTitle">
+      <div class="crop-title"><div><span class="eyebrow">TEXT SCAN</span><h2 id="ocrTitle">涂抹需要扫描的文字</h2></div><button id="closeOcr" aria-label="关闭">×</button></div>
+      <p class="dialog-help">像荧光笔一样覆盖需要识别的文字。只会扫描你涂过的区域，其他画面会被忽略。</p>
+      <div class="ocr-stage" id="ocrStage"><canvas id="ocrImageCanvas"></canvas><canvas id="ocrMaskCanvas"></canvas></div>
+      <div class="ocr-tools"><label>笔刷大小 <input id="brushSize" type="range" min="16" max="90" value="42" /></label><button id="clearMask">清除涂抹</button><span id="ocrProgress">等待涂抹</span></div>
+      <textarea id="ocrResult" placeholder="识别结果会出现在这里，你可以继续修改。"></textarea>
+      <div class="crop-actions"><button id="cancelOcr">取消</button><button id="scanText">开始识别</button><button id="copyOcr" disabled>复制文字</button><button id="insertOcr" disabled>插入笔记</button></div>
+    </div>
+  </div>
+  <div class="crop-dialog" id="coursewareDialog" aria-hidden="true">
+    <div class="crop-card courseware-card" role="dialog" aria-modal="true" aria-labelledby="coursewareTitle">
+      <div class="crop-title"><div><span class="eyebrow">COURSEWARE</span><h2 id="coursewareTitle">本课时课件</h2></div><button id="closeCourseware" aria-label="关闭">×</button></div>
+      <div class="courseware-toolbar"><p id="coursewareLessonName"></p><button id="addCourseware">＋ 导入 PPT / PDF</button></div>
+      <div class="courseware-layout"><aside class="courseware-list" id="coursewareList"></aside><section class="courseware-preview" id="coursewarePreview"><div class="dialog-empty"><b>选择一个课件查看</b><span>PPTX 会提取为逐页预览，PDF 可直接查看。</span></div></section></div>
+    </div>
+  </div>
+  <div class="crop-dialog" id="plannerDialog" aria-hidden="true">
+    <div class="crop-card planner-card" role="dialog" aria-modal="true" aria-labelledby="plannerTitle">
+      <div class="crop-title"><div><span class="eyebrow">COURSE PLAN</span><h2 id="plannerTitle">课程待办与备忘</h2></div><button id="closePlanner" aria-label="关闭">×</button></div>
+      <div class="planner-grid">
+        <section class="todo-panel"><h3>作业与 DDL</h3><form id="todoForm"><input id="todoText" type="text" placeholder="例如：提交实验报告" required /><input id="todoDate" type="date" aria-label="截止日期" /><button type="submit">添加</button></form><div id="todoList" class="todo-list"></div></section>
+        <section class="memo-panel"><h3>课程备忘</h3><textarea id="courseMemo" placeholder="记录作业要求、老师提醒、考试范围……"></textarea><p>输入后自动保存在当前课程。</p></section>
+      </div>
+    </div>
+  </div>
+  <div class="crop-dialog" id="tableDialog" aria-hidden="true">
+    <div class="crop-card table-card" role="dialog" aria-modal="true" aria-labelledby="tableTitle">
+      <div class="crop-title"><div><span class="eyebrow">TABLE</span><h2 id="tableTitle">插入表格</h2></div><button id="closeTable" aria-label="关闭">×</button></div>
+      <form id="tableForm">
+        <div class="table-fields"><label>行数 <input id="tableRows" type="number" min="1" max="20" value="3" required /></label><label>列数 <input id="tableCols" type="number" min="1" max="12" value="2" required /></label></div>
+        <label class="table-header-option"><input id="tableHeader" type="checkbox" checked /> 第一行作为表头</label>
+        <p class="dialog-help">最多 20 行、12 列，插入后可以直接点击单元格修改内容。</p>
+        <div class="crop-actions"><button id="cancelTable" type="button">取消</button><button type="submit">插入表格</button></div>
+      </form>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+  <script src="./app.js?v=18"></script>
+</body>
+</html>
